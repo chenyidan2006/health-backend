@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json({ limit: '10mb' })); // 支持大 JSON（电压数据）
 // 配置 CORS 选项
 const corsOptions = {
-    origin: ['http://localhost:8081', 'http://127.0.0.1:8081'], // 允许的源
+    origin: ['http://localhost:8081', 'http://127.0.0.1:8081','http://192.144.185.64'], // 允许的源
     credentials: true, // 允许携带Cookie
     optionsSuccessStatus: 200
 };
@@ -30,6 +30,12 @@ app.get('/api/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+server.on('error', (err) => {
+  console.error('服务器启动失败:', err.message);
+  if (err.code === 'EADDRINUSE') {
+    console.error(`端口 ${PORT} 已被占用，请尝试其他端口`);
+  }
 });
