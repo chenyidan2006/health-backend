@@ -1,4 +1,5 @@
 //controllers/dataQueryController.js（数据查询）
+//D:/code/app/appprogram/health-backend/controllers/dataQueryController.js
 const pool = require('../config/db');
 const logger = require('../utils/logger');
 
@@ -21,6 +22,77 @@ function getEmptySummary(date) {
     lastUpdate: null
   };
 }
+
+// 获取指定日期每小时的极值（用于圆柱图）
+exports.getHourlyRange = async (req, res) => {
+  try {
+    const { deviceId = 'ESP32_001', date } = req.query;
+    if (!date) return res.status(400).json({ errcode: 400, msg: '缺少日期参数' });
+
+    // 查询该日期所有 processed_health_data
+    const [rows] = await pool.execute(
+      `SELECT hour, heart_rate, systolic_bp, diastolic_bp, spo2
+       FROM processed_health_data
+       WHERE device_id = ? AND date = ?
+       ORDER BY hour ASC`,
+      [deviceId, date]
+    );
+
+    // 按小时分组计算极值
+    const hourlyMap = {};
+    for (let hour = 0; hour < 24; hour++) {
+      hourlyMap[hour] = {
+        hour,
+        heart_rates: [],
+        systolic_bps: [],
+        diastolic_bps: [],
+        spo2s: []
+      };
+    }
+
+    rows.forEach(row => {
+      const h = row.hour;
+      if (row.heart_rate) hourlyMap[h].heart_rates.push(row.heart_rate);
+      if (row.systolic_bp) hourlyMap[h].systolic_bps.push(row.systolic_bp);
+      if (row.diastolic_bp) hourlyMap[h].diastolic_bps.push(row.diastolic_bp);
+      if (row.spo2) hourlyMap[h].spo2s.push(row.spo2);
+    });
+
+    const hourlyRange = [];
+    for (let hour = 0; hour < 24; hour++) {
+      const data = hourlyMap[hour];
+      hourlyRange.push({
+        hour,
+        heart_rate: {
+          min: data.heart_rates.length ? Math.min(...data.heart_rates) : null,
+          max: data.heart_rates.length ? Math.max(...data.heart_rates) : null
+        },
+        systolic_bp: {
+          min: data.systolic_bps.length ? Math.min(...data.systolic_bps) : null,
+          max: data.systolic_bps.length ? Math.max(...data.systolic_bps) : null
+        },
+        diastolic_bp: {
+          min: data.diastolic_bps.length ? Math.min(...data.diastolic_bps) : null,
+          max: data.diastolic_bps.length ? Math.max(...data.diastolic_bps) : null
+        },
+        spo2: {
+          min: data.spo2s.length ? Math.min(...data.spo2s) : null,
+          max: data.spo2s.length ? Math.max(...data.spo2s) : null
+        },
+        count: data.heart_rates.length
+      });
+    }
+
+    res.json({
+      errcode: 0,
+      msg: '获取每小时极值成功',
+      data: hourlyRange
+    });
+  } catch (err) {
+    logger.error('getHourlyRange 失败', err);
+    res.status(500).json({ errcode: 500, msg: err.message });
+  }
+};
 
 // 获取每日汇总
 exports.getDailySummary = async (req, res) => {

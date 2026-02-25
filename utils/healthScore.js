@@ -1,3 +1,4 @@
+//D:/code/app/appprogram/health-backend/utils/healthScore.js
 //utils/healthScore.js（评分算法，完全移植自云函数）
 // 心率评分
 function calculateHeartRateScore(heartRate) {

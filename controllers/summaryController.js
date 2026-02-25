@@ -1,3 +1,4 @@
+//D:/code/app/appprogram/health-backend/controllers/summaryController.js
 //controllers/summaryController.js（手动触发每日汇总）
 const pool = require('../config/db');
 const logger = require('../utils/logger');

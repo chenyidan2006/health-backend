@@ -1,4 +1,4 @@
-// config/db.js
+// D:/code/app/appprogram/health-backend/config/db.js
 //建立连接池
 const mysql = require('mysql2/promise');
 require('dotenv').config();

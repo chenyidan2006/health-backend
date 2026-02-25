@@ -1,3 +1,4 @@
+//D:/code/app/appprogram/health-backend/utils/dailySummaryHelper.js
 //utils/dailySummaryHelper.js（每日汇总更新核心逻辑）
 const pool = require('../config/db');
 const { calculateHealthScores } = require('./healthScore');
