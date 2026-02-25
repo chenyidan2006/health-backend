@@ -145,14 +145,14 @@ exports.uploadPulseData = async (req, res) => {
 	if (BYPASS_PYTHON) {
 	  console.log('🚀 BYPASS_PYTHON 已开启，使用模拟数据');
 	  const mockHealthData = {
-	    heart_rate: 72,
-	    systolic_bp: 118,
-	    diastolic_bp: 78,
-	    spo2: 97,
-	    confidence: 0.85,
-	    algorithm: 'mock',
-	    feature_count: 0,
-	    processing_time: 0
+    heart_rate: 60 + Math.floor(Math.random() * 25),        // 60-85
+    systolic_bp: 110 + Math.floor(Math.random() * 20),      // 110-130
+    diastolic_bp: 70 + Math.floor(Math.random() * 15),      // 70-85
+    spo2: 95 + Math.floor(Math.random() * 5),               // 95-100
+    confidence: 0.8 + Math.random() * 0.15,                 // 0.8-0.95
+    algorithm: 'mock',
+    feature_count: 0,
+    processing_time: 0
 	  };
 	
 	  // 存储处理数据（模拟）
