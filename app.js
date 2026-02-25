@@ -19,7 +19,9 @@ const uploadRoutes = require('./routes/upload');
 const dataRoutes = require('./routes/data');
 const summaryRoutes = require('./routes/summary');
 const csvRoutes = require('./routes/csv');
+const userRoutes = require('./routes/user');
 
+app.use('/api/user', userRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/summary', summaryRoutes);
