@@ -288,7 +288,8 @@ exports.uploadPulseData = async (req, res) => {
 
   } catch (error) {
     logger.error('上传处理失败', error);
-    res.status(error.code || 500).json({
+    const statusCode = (error.code && typeof error.code === 'number') ? error.code : 500;
+    res.status(statusCode).json({
       success: false,
       message: error.message || '服务器内部错误',
       request_id: requestId
