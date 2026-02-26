@@ -1,20 +1,31 @@
-// utils/sms.js
-//发送验证码
-const axios = require('axios');
+// 以阿里云为例，需安装 @alicloud/sms-sdk
+const SMSClient = require('@alicloud/sms-sdk');
 
-// 假设您使用了阿里云短信服务
+const accessKeyId = process.env.ALIYUN_ACCESS_KEY_ID;
+const secretAccessKey = process.env.ALIYUN_ACCESS_KEY_SECRET;
+const signName = '您的短信签名';
+const templateCode = '您的模板CODE';
+
+const smsClient = new SMSClient({ accessKeyId, secretAccessKey });
+
 const sendSms = async (phone, code) => {
-  // 这里需要您根据短信服务商的API实现
-  // 示例：调用阿里云短信接口
-  const params = {
-    PhoneNumbers: phone,
-    SignName: '您的签名',
-    TemplateCode: '您的模板CODE',
-    TemplateParam: JSON.stringify({ code })
-  };
-  // 实际发送逻辑...
-  console.log(`发送验证码 ${code} 到手机 ${phone}`);
-  return true;
+  try {
+    const res = await smsClient.sendSMS({
+      PhoneNumbers: phone,
+      SignName: signName,
+      TemplateCode: templateCode,
+      TemplateParam: JSON.stringify({ code })
+    });
+    if (res.Code === 'OK') {
+      return true;
+    } else {
+      console.error(res);
+      return false;
+    }
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
 };
 
 module.exports = { sendSms };
