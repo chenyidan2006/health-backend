@@ -7,7 +7,7 @@ const app = express();
 app.use(express.json({ limit: '10mb' })); // 支持大 JSON（电压数据）
 // 配置 CORS 选项
 const corsOptions = {
-    origin: ['http://localhost:8081', 'http://127.0.0.1:8081','http://192.144.185.64:8081'], // 允许的源
+    origin: ['http://localhost:8081', 'http://127.0.0.1:8081','http://192.144.185.64:8081','http://10.24.63.78:8082','http://10.24.63.78:8081'], // 允许的源
     credentials: true, // 允许携带Cookie
     optionsSuccessStatus: 200
 };
