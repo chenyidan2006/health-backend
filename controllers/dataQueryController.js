@@ -31,6 +31,9 @@ exports.getHourlyRange = async (req, res) => {
     const { deviceId, date } = req.query;
     if (!date) return res.status(400).json({ errcode: 400, msg: '缺少日期参数' });
 
+    console.log('>>> getHourlyRange 被调用，用户ID:', userId, '日期:', date);
+
+    // 查询数据，直接返回 hour 值（不使用别名，确保字段名一致）
     let sql = `
       SELECT HOUR(measure_time) as hour,
              heart_rate, systolic_bp, diastolic_bp, spo2
@@ -45,30 +48,43 @@ exports.getHourlyRange = async (req, res) => {
     sql += ' ORDER BY measure_time ASC';
 
     const [rows] = await pool.execute(sql, params);
+    console.log('查询到记录数:', rows.length);
 
-    // 按小时分组初始化
+    // 如果没数据，直接返回空
+    if (rows.length === 0) {
+      return res.json({ errcode: 0, msg: '无数据', data: generateEmptyHourlyRange() });
+    }
+
+    // 打印第一条记录，查看字段名
+    console.log('第一条记录字段:', Object.keys(rows[0]));
+    console.log('第一条记录值:', rows[0]);
+
+    // 按小时分组
     const hourlyMap = {};
     for (let hour = 0; hour < 24; hour++) {
-      hourlyMap[hour] = {
-        heart_rates: [],
-        systolic_bps: [],
-        diastolic_bps: [],
-        spo2s: []
-      };
+      hourlyMap[hour] = { heart_rates: [], systolic_bps: [], diastolic_bps: [], spo2s: [] };
     }
 
     rows.forEach(row => {
-      // 兼容两种可能的字段名：hour 或 HOUR(measure_time)
+      // 小时字段可能为 'hour' 或 'HOUR(measure_time)'，这里兼容两者
       const hour = row.hour !== undefined ? row.hour : row['HOUR(measure_time)'];
       if (hour === undefined || hour === null) {
-        console.log('无法获取小时字段，可用键名:', Object.keys(row));
-        return; // 跳过无法识别小时的行
+        console.log('无法获取小时，跳过该行，可用字段:', Object.keys(row));
+        return;
       }
       if (row.heart_rate) hourlyMap[hour].heart_rates.push(row.heart_rate);
       if (row.systolic_bp) hourlyMap[hour].systolic_bps.push(row.systolic_bp);
       if (row.diastolic_bp) hourlyMap[hour].diastolic_bps.push(row.diastolic_bp);
       if (row.spo2) hourlyMap[hour].spo2s.push(row.spo2);
     });
+
+    // 输出有数据的小时
+    for (let hour = 0; hour < 24; hour++) {
+      const count = hourlyMap[hour].heart_rates.length;
+      if (count > 0) {
+        console.log(`小时 ${hour}: ${count} 条数据，心率范围 ${Math.min(...hourlyMap[hour].heart_rates)}-${Math.max(...hourlyMap[hour].heart_rates)}`);
+      }
+    }
 
     const hourlyRange = [];
     for (let hour = 0; hour < 24; hour++) {
@@ -95,16 +111,27 @@ exports.getHourlyRange = async (req, res) => {
       });
     }
 
-    res.json({
-      errcode: 0,
-      msg: '获取每小时极值成功',
-      data: hourlyRange
-    });
+    res.json({ errcode: 0, msg: '获取每小时极值成功', data: hourlyRange });
   } catch (err) {
-    console.error('getHourlyRange 失败', err);
+    console.error('getHourlyRange 异常:', err);
     res.status(500).json({ errcode: 500, msg: err.message });
   }
 };
+
+function generateEmptyHourlyRange() {
+  const data = [];
+  for (let hour = 0; hour < 24; hour++) {
+    data.push({
+      hour,
+      heart_rate: { min: null, max: null },
+      systolic_bp: { min: null, max: null },
+      diastolic_bp: { min: null, max: null },
+      spo2: { min: null, max: null },
+      count: 0
+    });
+  }
+  return data;
+}
 
 /**
  * 获取每日汇总
