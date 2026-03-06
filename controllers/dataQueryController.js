@@ -26,9 +26,11 @@ function getEmptySummary(date) {
  * 获取指定日期每小时的极值（用于圆柱图）
  */
 exports.getHourlyRange = async (req, res) => {
+	console.log('🔥🔥🔥 控制器 getHourlyRange 被调用！时间:', new Date().toISOString());
   try {
     const userId = req.user.id;
     const { deviceId, date } = req.query;
+	console.log('>>> 用户ID:', userId, '日期:', date);
     if (!date) return res.status(400).json({ errcode: 400, msg: '缺少日期参数' });
 
     console.log('>>> getHourlyRange 被调用，用户ID:', userId, '日期:', date);
