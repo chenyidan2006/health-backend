@@ -32,6 +32,7 @@ exports.getHourlyRange = async (req, res) => {
     if (!date) return res.status(400).json({ errcode: 400, msg: '缺少日期参数' });
 
     console.log('>>> getHourlyRange 被调用，用户ID:', userId, '日期:', date);
+	console.log('>>> 当前时间:', new Date().toISOString(), '用户ID:', req.user.id);
 
     // 查询数据，直接返回 hour 值（不使用别名，确保字段名一致）
     let sql = `
