@@ -31,10 +31,6 @@ exports.getHourlyRange = async (req, res) => {
     const { deviceId, date } = req.query;
     if (!date) return res.status(400).json({ errcode: 400, msg: '缺少日期参数' });
 
-    console.log('=== getHourlyRange 调试信息 ===');
-    console.log('用户ID:', userId);
-    console.log('查询日期:', date);
-
     let sql = `
       SELECT HOUR(measure_time) as hour,
              heart_rate, systolic_bp, diastolic_bp, spo2
@@ -48,18 +44,9 @@ exports.getHourlyRange = async (req, res) => {
     }
     sql += ' ORDER BY measure_time ASC';
 
-    console.log('SQL:', sql);
-    console.log('参数:', params);
-
     const [rows] = await pool.execute(sql, params);
-    console.log('查询到记录数:', rows.length);
-    
-    if (rows.length > 0) {
-      console.log('第一条数据完整内容:', rows[0]);
-      console.log('第一条数据的字段名:', Object.keys(rows[0]));
-    }
 
-    // 按小时分组收集数值
+    // 按小时分组初始化
     const hourlyMap = {};
     for (let hour = 0; hour < 24; hour++) {
       hourlyMap[hour] = {
@@ -71,29 +58,18 @@ exports.getHourlyRange = async (req, res) => {
     }
 
     rows.forEach(row => {
-      // 关键：检查 hour 字段是否存在，以及它的值
-      const hour = row.hour;
-      console.log(`处理行: hour=${hour}, heart_rate=${row.heart_rate}`);
-      
+      // 兼容两种可能的字段名：hour 或 HOUR(measure_time)
+      const hour = row.hour !== undefined ? row.hour : row['HOUR(measure_time)'];
       if (hour === undefined || hour === null) {
-        console.log('警告: hour 字段缺失，可用字段:', Object.keys(row));
-        return;
+        console.log('无法获取小时字段，可用键名:', Object.keys(row));
+        return; // 跳过无法识别小时的行
       }
-      
       if (row.heart_rate) hourlyMap[hour].heart_rates.push(row.heart_rate);
       if (row.systolic_bp) hourlyMap[hour].systolic_bps.push(row.systolic_bp);
       if (row.diastolic_bp) hourlyMap[hour].diastolic_bps.push(row.diastolic_bp);
       if (row.spo2) hourlyMap[hour].spo2s.push(row.spo2);
     });
 
-    // 输出每个小时的数据量
-    for (let hour = 0; hour < 24; hour++) {
-      if (hourlyMap[hour].heart_rates.length > 0) {
-        console.log(`小时 ${hour} 有 ${hourlyMap[hour].heart_rates.length} 条心率数据`);
-      }
-    }
-
-    // 计算每小时的极值
     const hourlyRange = [];
     for (let hour = 0; hour < 24; hour++) {
       const data = hourlyMap[hour];
@@ -125,7 +101,7 @@ exports.getHourlyRange = async (req, res) => {
       data: hourlyRange
     });
   } catch (err) {
-    logger.error('getHourlyRange 失败', err);
+    console.error('getHourlyRange 失败', err);
     res.status(500).json({ errcode: 500, msg: err.message });
   }
 };
