@@ -1,4 +1,3 @@
-// middleware/auth.js
 const { verifyToken } = require('../utils/jwt');
 
 module.exports = async (req, res, next) => {
@@ -11,6 +10,7 @@ module.exports = async (req, res, next) => {
   if (!decoded) {
     return res.status(401).json({ errcode: 2, msg: '令牌无效或已过期' });
   }
-  req.user = decoded; // { id, phone, isGuest }
+  req.user = decoded;
+  console.log('✅ authMiddleware 通过，用户ID:', decoded.id);  // 新增
   next();
 };
