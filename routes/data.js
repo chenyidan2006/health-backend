@@ -10,6 +10,6 @@ router.get('/realtime', authMiddleware, dataController.getRealtimeDataHandler);
 router.get('/availableDates', authMiddleware, dataController.getAvailableDates);
 router.get('/deviceStatus', authMiddleware, dataController.getDeviceStatus);
 router.get('/historyTrend', authMiddleware, dataController.getHistoryTrend);
-router.get('/hourlyRange', authMiddleware, dataController.getHourlyRange);
+router.get('/hourlyRange',  dataController.getHourlyRange);
 
 module.exports = router;
