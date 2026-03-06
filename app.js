@@ -25,7 +25,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/data', dataRoutes);
 app.use('/api/summary', summaryRoutes);
-app.use('/api/csv', csvRoutes); 
+//app.use('/api/csv', csvRoutes); 
 
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
