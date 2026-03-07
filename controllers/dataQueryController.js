@@ -2,6 +2,7 @@
 const pool = require('../config/db');
 
 exports.getHourlyRange = async (req, res) => {
+	a=b;
   console.log('🔥🔥🔥 getHourlyRange 控制器被调用');
   try {
     // 从 token 获取用户ID（已由中间件挂载到 req.user）
