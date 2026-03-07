@@ -16,5 +16,6 @@ router.post('/guestLogin', userController.guestLogin);            // 游客登�
 router.get('/profile', authMiddleware, userController.getProfile);
 router.put('/profile', authMiddleware, userController.updateProfile);
 router.post('/change-password', authMiddleware, userController.changePassword);
+router.get('/devices', authMiddleware, userController.getUserDevices);
 
 module.exports = router;

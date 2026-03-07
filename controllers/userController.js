@@ -58,6 +58,22 @@ exports.loginBySms = async (req, res) => {
   }
 };
 
+// 获取当前用户的所有设备ID
+exports.getUserDevices = async (req, res) => {
+  try {
+    const userId = req.user.id; // 从认证中间件获取
+    const [rows] = await pool.execute(
+      `SELECT DISTINCT device_id FROM user_health_data WHERE user_id = ?`,
+      [userId]
+    );
+    const devices = rows.map(row => row.device_id);
+    res.json({ errcode: 0, data: devices });
+  } catch (err) {
+    console.error('获取设备列表失败', err);
+    res.status(500).json({ errcode: 500, msg: '服务器错误' });
+  }
+};
+
 // 微信登录（小程序）- 功能开发中
 exports.wechatLogin = async (req, res) => {
   // 检查是否配置了有效的微信 AppID 和 Secret
