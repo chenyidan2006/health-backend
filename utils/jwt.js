@@ -1,5 +1,4 @@
 // utils/jwt.js
-//生成和验证 token
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET || 'your-secret-key';
 

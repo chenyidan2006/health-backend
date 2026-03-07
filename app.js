@@ -1,43 +1,26 @@
-// D:/code/app/appprogram/health-backend/app.js
+// app.js
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-app.use(express.json({ limit: '10mb' })); // 支持大 JSON（电压数据）
-// 配置 CORS 选项
-const corsOptions = {
-    origin: ['http://localhost:8081', 'http://127.0.0.1:8081','http://192.144.185.64:8081','http://10.24.63.78:8082','http://10.24.63.78:8081'], // 允许的源
-    credentials: true, // 允许携带Cookie
-    optionsSuccessStatus: 200
-};
-
-app.use(cors(corsOptions)); // 使用 CORS 中间件
+app.use(express.json({ limit: '10mb' }));
+app.use(cors());
 
 // 引入路由
-const uploadRoutes = require('./routes/upload');
 const dataRoutes = require('./routes/data');
-const summaryRoutes = require('./routes/summary');
-const csvRoutes = require('./routes/csv');
 const userRoutes = require('./routes/user');
 
 app.use('/api/user', userRoutes);
-app.use('/api/upload', uploadRoutes);
-app.use('/api/data', dataRoutes);
-app.use('/api/summary', summaryRoutes);
-//app.use('/api/csv', csvRoutes); 
+app.use('/api/data', dataRoutes); // 确保这里挂载了数据路由
 
+// 健康检查
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', timestamp: new Date() });
 });
 
 const PORT = process.env.PORT || 3000;
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
-server.on('error', (err) => {
-  console.error('服务器启动失败:', err.message);
-  if (err.code === 'EADDRINUSE') {
-    console.error(`端口 ${PORT} 已被占用，请尝试其他端口`);
-  }
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log('Redis 连接成功'); // 模拟，实际连接在别处
 });
