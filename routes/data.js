@@ -5,6 +5,10 @@ const router = express.Router();
 const dataController = require('../controllers/dataQueryController');
 const authMiddleware = require('../middleware/auth');
 console.log('dataController 内容:', Object.keys(dataController));
+
+router.get('/test', (req, res) => {
+  res.json({ message: 'test ok' });
+});
 // 所有数据接口都需要认证
 router.get('/dailySummary', authMiddleware, dataController.getDailySummary);
 router.get('/realtime', authMiddleware, dataController.getRealtimeDataHandler);

@@ -13,6 +13,8 @@ const userRoutes = require('./routes/user');
 
 app.use('/api/user', userRoutes);
 app.use('/api/data', dataRoutes); // 确保这里挂载了数据路由
+console.log('dataRoutes 类型:', typeof dataRoutes); // 应该是 function
+console.log('dataRoutes 是否有路由?', dataRoutes.stack ? dataRoutes.stack.length : 0);
 
 // 健康检查
 app.get('/api/health', (req, res) => {
