@@ -398,4 +398,5 @@ function getMetricValue(row, metric) {
     case 'spo2': return row.avg_spo2 ? Math.round(row.avg_spo2) : null;
     default: return null;
   }
-}
+};
+console.log('导出的方法:', Object.keys(module.exports));

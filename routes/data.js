@@ -1,4 +1,5 @@
 // routes/data.js
+console.log('dataController 内容:', Object.keys(dataController));
 const express = require('express');
 const router = express.Router();
 const dataController = require('../controllers/dataQueryController');
