@@ -201,7 +201,7 @@ exports.login = async (req, res) => {
 
 // ==================== 需要认证的接口 ====================
 
-// 获取个人信息
+
 // 获取个人信息
 exports.getProfile = async (req, res) => {
   const userId = req.user.id;
@@ -221,10 +221,26 @@ exports.getProfile = async (req, res) => {
 };
 
 // 更新个人资料
+// 更新个人资料
 exports.updateProfile = async (req, res) => {
   const userId = req.user.id;
   const { nickname, avatar, gender, birthday, height, weight, phone, email } = req.body;
   try {
+    // 辅助函数：将 undefined 转为 null
+    const toNull = (val) => val === undefined ? null : val;
+
+    const params = [
+      toNull(nickname),
+      toNull(avatar),
+      toNull(gender),
+      toNull(birthday),
+      toNull(height),
+      toNull(weight),
+      toNull(phone),
+      toNull(email),
+      userId
+    ];
+
     await pool.execute(
       `UPDATE users SET
         nickname = COALESCE(?, nickname),
@@ -237,7 +253,7 @@ exports.updateProfile = async (req, res) => {
         email = COALESCE(?, email),
         updated_at = NOW()
        WHERE id = ?`,
-      [nickname, avatar, gender, birthday, height, weight, phone, email, userId]
+      params
     );
     res.json({ errcode: 0, msg: '更新成功' });
   } catch (err) {
