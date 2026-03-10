@@ -202,11 +202,12 @@ exports.login = async (req, res) => {
 // ==================== 需要认证的接口 ====================
 
 // 获取个人信息
+// 获取个人信息
 exports.getProfile = async (req, res) => {
   const userId = req.user.id;
   try {
     const [users] = await pool.execute(
-      'SELECT id, username, phone, nickname, avatar, gender, height, weight, is_guest, created_at FROM users WHERE id = ?',
+      'SELECT id, username, phone, nickname, avatar, gender, birthday, height, weight, is_guest, created_at FROM users WHERE id = ?',
       [userId]
     );
     if (users.length === 0) {
@@ -222,37 +223,22 @@ exports.getProfile = async (req, res) => {
 // 更新个人资料
 exports.updateProfile = async (req, res) => {
   const userId = req.user.id;
-  const { nickname, avatar, gender, height, weight, phone, email, birthday } = req.body;
-
+  const { nickname, avatar, gender, birthday, height, weight, phone, email } = req.body;
   try {
-    const [result] = await pool.execute(
+    await pool.execute(
       `UPDATE users SET
         nickname = COALESCE(?, nickname),
         avatar = COALESCE(?, avatar),
         gender = COALESCE(?, gender),
+        birthday = COALESCE(?, birthday),
         height = COALESCE(?, height),
         weight = COALESCE(?, weight),
-        birthday = COALESCE(?, birthday),
         phone = COALESCE(?, phone),
         email = COALESCE(?, email),
         updated_at = NOW()
        WHERE id = ?`,
-      [
-        nickname ?? null,
-        avatar ?? null,
-        gender ?? null,
-        height ?? null,
-        weight ?? null,
-        birthday ?? null,
-        phone ?? null,
-        email ?? null,
-        userId
-      ]
+      [nickname, avatar, gender, birthday, height, weight, phone, email, userId]
     );
-
-    if (result.affectedRows === 0) {
-      return res.json({ errcode: 1, msg: '用户不存在或未更新' });
-    }
     res.json({ errcode: 0, msg: '更新成功' });
   } catch (err) {
     console.error('更新资料错误:', err);
