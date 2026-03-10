@@ -222,21 +222,37 @@ exports.getProfile = async (req, res) => {
 // 更新个人资料
 exports.updateProfile = async (req, res) => {
   const userId = req.user.id;
-  const { nickname, avatar, gender, height, weight, phone, email } = req.body;
+  const { nickname, avatar, gender, height, weight, phone, email, birthday } = req.body;
+
   try {
-    await pool.execute(
+    const [result] = await pool.execute(
       `UPDATE users SET
         nickname = COALESCE(?, nickname),
         avatar = COALESCE(?, avatar),
         gender = COALESCE(?, gender),
         height = COALESCE(?, height),
         weight = COALESCE(?, weight),
+        birthday = COALESCE(?, birthday),
         phone = COALESCE(?, phone),
         email = COALESCE(?, email),
         updated_at = NOW()
        WHERE id = ?`,
-      [nickname, avatar, gender, height, weight, phone, email, userId]
+      [
+        nickname ?? null,
+        avatar ?? null,
+        gender ?? null,
+        height ?? null,
+        weight ?? null,
+        birthday ?? null,
+        phone ?? null,
+        email ?? null,
+        userId
+      ]
     );
+
+    if (result.affectedRows === 0) {
+      return res.json({ errcode: 1, msg: '用户不存在或未更新' });
+    }
     res.json({ errcode: 0, msg: '更新成功' });
   } catch (err) {
     console.error('更新资料错误:', err);
