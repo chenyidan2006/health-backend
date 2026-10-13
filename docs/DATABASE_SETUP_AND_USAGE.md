@@ -1,6 +1,6 @@
 # 数据库创建与使用
 
-后端使用 MySQL，默认数据库名为 `health_monitor`，建议使用 MySQL 8.x。数据库保存账号、设备绑定和计算后的健康指标；原始 PPG 波形不写入 MySQL。
+后端使用 MySQL，默认数据库名为 `health_monitor`，建议使用 MySQL 8.x。数据库保存账号、设备绑定和计算后的健康指标；原始激光自混合干涉（LSMI）波形不写入 MySQL。
 
 ## 1. 初始化全新数据库
 

@@ -1,6 +1,4 @@
-const jwt = require('jsonwebtoken');
-
-const JWT_SECRET = process.env.JWT_SECRET || 'health_monitor_auth_secret';
+const { verifyToken } = require('../utils/jwt');
 
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -10,7 +8,10 @@ function authMiddleware(req, res, next) {
 
   const token = authHeader.replace('Bearer ', '');
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      throw new Error('token verification failed');
+    }
     req.user = decoded;
     next();
   } catch (err) {

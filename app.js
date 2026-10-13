@@ -6,13 +6,29 @@ const { connectDB } = require('./config/db');
 const app = express();
 const PORT = process.env.PORT || 3002;
 
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  throw new Error('JWT_SECRET 必须通过环境变量配置，且长度至少为 32 个字符');
+}
+
+const allowedOrigins = (process.env.CORS_ORIGINS ||
+  'http://localhost:8080,http://localhost:5173,https://chenyidan2006.github.io')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: true,  
+  origin(origin, callback) {
+    // 原生 App、服务间调用通常没有 Origin；浏览器请求只接受明确列出的来源。
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS origin not allowed'));
+  },
   methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   credentials: true
 }));
-app.options('*', cors());
+app.options('*', cors({ origin: allowedOrigins }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
