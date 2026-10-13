@@ -31,7 +31,7 @@ async function tablesReady() {
   }
   if (!tablesReadyCache && !degradedWarned) {
     degradedWarned = true;
-    logger.warn('AI 记忆表尚未创建，记忆功能暂时降级（请先执行 20261011_ai_chat_memory.sql）');
+    logger.warn('AI 记忆表尚未创建，记忆功能暂时降级（请执行 database/migrations/2026-10-13_add_ai_memory.sql）');
   }
   return tablesReadyCache;
 }
