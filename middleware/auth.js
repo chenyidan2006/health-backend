@@ -1,18 +1,22 @@
-// middleware/auth.js
-const { verifyToken } = require('../utils/jwt');
+const jwt = require('jsonwebtoken');
 
-module.exports = async (req, res, next) => {
-  console.log('🔥 authMiddleware 被触发');
+const JWT_SECRET = process.env.JWT_SECRET || 'health_monitor_auth_secret';
+
+function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ errcode: 1, msg: '未提供认证令牌' });
+  if (!authHeader) {
+    return res.status(401).json({ errcode: -1, msg: '未授权' });
   }
-  const token = authHeader.split(' ')[1];
-  const decoded = verifyToken(token);
-  if (!decoded) {
-    return res.status(401).json({ errcode: 2, msg: '令牌无效或已过期' });
+
+  const token = authHeader.replace('Bearer ', '');
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    console.error('JWT verify failed:', err.message);
+    return res.status(401).json({ errcode: -1, msg: '无效的token' });
   }
-  req.user = decoded;
-  console.log('✅ 用户认证通过，ID:', decoded.id);
-  next();
-};
+}
+
+module.exports = authMiddleware;

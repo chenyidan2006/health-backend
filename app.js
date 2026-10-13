@@ -1,28 +1,43 @@
-// app.js
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
+const { connectDB } = require('./config/db');
 
 const app = express();
+const PORT = process.env.PORT || 3002;
+
+app.use(cors({
+  origin: true,  
+  methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true
+}));
+app.options('*', cors());
 app.use(express.json({ limit: '10mb' }));
-app.use(cors());
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// 引入路由
-const dataRoutes = require('./routes/data');
-const userRoutes = require('./routes/user');
+// 路由挂载
+app.use('/api/user', require('./routes/user'));
+app.use('/api/upload', require('./routes/upload'));
+app.use('/api/data', require('./routes/data'));
 
-app.use('/api/user', userRoutes);
-app.use('/api/data', dataRoutes); // 确保这里挂载了数据路由
-console.log('dataRoutes 类型:', typeof dataRoutes); // 应该是 function
-console.log('dataRoutes 是否有路由?', dataRoutes.stack ? dataRoutes.stack.length : 0);
+// AI 路由（可选，找不到就跳过）
+try {
+  app.use('/api/ai', require('./routes/ai'));
+} catch (e) {
+  console.log('AI 路由未加载');
+}
 
 // 健康检查
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date() });
+  res.json({ status: 'ok', timestamp: new Date() });
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log('Redis 连接成功'); // 模拟，实际连接在别处
-});
+// 启动
+async function startServer() {
+  await connectDB();
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 健康数据服务启动于端口: ${PORT}`);
+  });
+}
+startServer();

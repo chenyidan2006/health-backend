@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
+console.log('userController 导出的方法:', Object.keys(userController)); 
 const authMiddleware = require('../middleware/auth');
 
 // 公开接口
@@ -16,6 +17,13 @@ router.post('/guestLogin', userController.guestLogin);            // 游客登�
 router.get('/profile', authMiddleware, userController.getProfile);
 router.put('/profile', authMiddleware, userController.updateProfile);
 router.post('/change-password', authMiddleware, userController.changePassword);
+// 获取当前用户的设备列表
 router.get('/devices', authMiddleware, userController.getUserDevices);
+// 搜索设备
+router.get('/devices/search', authMiddleware, userController.searchDevices);
+// 绑定新设备
+router.post('/devices/bind', authMiddleware, userController.bindDevice);
+// 解绑设备
+router.delete('/devices/:deviceId', authMiddleware, userController.unbindDevice);
 
 module.exports = router;

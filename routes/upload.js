@@ -3,6 +3,6 @@ const express = require('express');
 const router = express.Router();
 const uploadController = require('../controllers/uploadController');
 
-router.post('/', uploadController.uploadPulseData);
+router.post('/health-data', uploadController.uploadHealthData);
 
 module.exports = router;

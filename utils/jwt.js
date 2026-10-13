@@ -1,10 +1,10 @@
 // utils/jwt.js
 const jwt = require('jsonwebtoken');
-const secret = process.env.JWT_SECRET || 'your-secret-key';
+const secret = process.env.JWT_SECRET || 'health_monitor_auth_secret';
 
 exports.generateToken = (user) => {
   return jwt.sign(
-    { id: user.id, phone: user.phone, isGuest: user.is_guest },
+    { id: user.id, isGuest: user.is_guest },
     secret,
     { expiresIn: '7d' }
   );
