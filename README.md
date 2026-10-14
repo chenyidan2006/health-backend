@@ -13,6 +13,7 @@ npm start
 首次部署前先阅读：
 
 - [数据库创建、迁移、使用与备份](docs/DATABASE_SETUP_AND_USAGE.md)
+- [端口、算法写库与 App 接口关系](docs/PORTS_AND_INTEGRATION.md)
 
 本仓库只保存后端服务。App、ESP32 固件、服务器接收与 MATLAB 推理程序位于 [`laser-self-mixing-vascular-monitoring`](https://github.com/chenyidan2006/laser-self-mixing-vascular-monitoring)。
 
@@ -21,6 +22,13 @@ npm start
 - 已接通：`POST /api/upload/health-data`、`/api/data/*`、`/api/user/*`。
 - 尚未接通：袖带血压真值采集 `/api/training`，因此目前不能保存真值与原始波形的对应关系。
 - 已知限制：服务器算法失败时可能上传兜底血压；当前表结构无法区分兜底值。服务器上传的 `spo2=98` 仍是占位值，不是血氧算法结果。
+
+## 端口关系
+
+- `3002`：本后端，供算法写入预测结果、App 登录和查询。
+- `3306`：MySQL，只应允许本机或内网访问。
+- `3000`：另一个仓库中的原始 SMI 帧接收器，不属于本后端。
+- 算法是本地 Python/MATLAB 子进程，不额外监听端口。
 
 ## 安全说明
 
