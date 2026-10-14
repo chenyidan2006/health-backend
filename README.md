@@ -12,7 +12,7 @@ npm start
 
 首次部署前先阅读：
 
-- [数据库创建、迁移、使用与备份](docs/DATABASE_SETUP_AND_USAGE.md)
+- [MySQL 讲解、逐步建表、查询、迁移与备份](docs/DATABASE_SETUP_AND_USAGE.md)
 - [端口、算法写库与 App 接口关系](docs/PORTS_AND_INTEGRATION.md)
 
 本仓库只保存后端服务。App、ESP32 固件、服务器接收与 MATLAB 推理程序位于 [`laser-self-mixing-vascular-monitoring`](https://github.com/chenyidan2006/laser-self-mixing-vascular-monitoring)。
