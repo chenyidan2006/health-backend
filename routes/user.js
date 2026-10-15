@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+router.use(require('./accountExtras').router);
 const userController = require('../controllers/userController');
 console.log('userController 导出的方法:', Object.keys(userController)); 
 const authMiddleware = require('../middleware/auth');

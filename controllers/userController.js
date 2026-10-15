@@ -247,7 +247,7 @@ exports.getProfile = async (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const userId = req.user.id;
-    const { nickname, avatar, gender, birthday, height, weight, email } = req.body;
+    const { nickname=null, avatar=null, gender=null, birthday=null, height=null, weight=null, email=null } = req.body || {};
     await pool.execute(
       `UPDATE users SET
         nickname = COALESCE(?, nickname),
@@ -276,14 +276,14 @@ exports.changePassword = async (req, res) => {
   try {
     const userId = req.user.id;
     const { oldPassword, newPassword } = req.body;
-    if (!oldPassword || !newPassword) {
-      return res.json({ errcode: 1, msg: '旧密码和新密码不能为空' });
+    if (typeof newPassword !== 'string' || newPassword.length < 6 || newPassword.length > 72) {
+      return res.json({ errcode: 1, msg: '新密码长度应为6至72个字符' });
     }
     const [rows] = await pool.execute('SELECT password FROM users WHERE id = ?', [userId]);
     if (rows.length === 0) {
       return res.status(404).json({ errcode: 404, msg: '用户不存在' });
     }
-    const isValid = await bcrypt.compare(oldPassword, rows[0].password);
+    const isValid = !rows[0].password || (typeof oldPassword==='string' && await bcrypt.compare(oldPassword, rows[0].password));
     if (!isValid) {
       return res.status(401).json({ errcode: 401, msg: '原密码错误' });
     }

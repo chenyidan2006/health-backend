@@ -11,7 +11,7 @@ if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
 }
 
 const allowedOrigins = (process.env.CORS_ORIGINS ||
-  'http://localhost:8080,http://localhost:5173,https://chenyidan2006.github.io')
+  'http://localhost:8080,http://localhost:8081,http://127.0.0.1:8081,http://localhost:5173,http://127.0.0.1:5173,https://chenyidan2006.github.io')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
@@ -36,6 +36,8 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/api/user', require('./routes/user'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/data', require('./routes/data'));
+app.use('/api/training', require('./routes/training'));
+app.use('/avatars', express.static(require('path').join(__dirname, 'data', 'avatars'), { dotfiles: 'deny', index: false, setHeaders(res) { res.setHeader('X-Content-Type-Options', 'nosniff'); } }));
 
 // AI 路由（可选，找不到就跳过）
 try {

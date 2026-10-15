@@ -49,7 +49,7 @@ function parse(buf) {
   for(const q of qs) filtered=zeroPhase(filtered,rate,0.45*rate,q,false);
   const zoom=filtered.slice(0,Math.min(3200,filtered.length));
   const statistics=signalStatistics(filtered);
-  return {sampleRate:rate,channels,samples:raw.length,duration:raw.length/rate,unit:'mV',statistics,filter:{low:100,high:0.45*rate,order:4,zeroPhase:true},raw:envelope(ac,rate),filtered:envelope(filtered,rate),zoom:envelope(zoom,rate),displayChannel:'complete-stream'};
+  return {sampleRate:rate,channels:1,legacyHeaderChannels:channels,samples:raw.length,duration:raw.length/rate,unit:'mV',statistics,filter:{low:100,high:0.45*rate,order:4,zeroPhase:true},raw:envelope(ac,rate),filtered:envelope(filtered,rate),zoom:envelope(zoom,rate),displayChannel:'continuous-single-channel'};
 }
 function signalStatistics(values){let min=Infinity,max=-Infinity,sum=0;for(const value of values){min=Math.min(min,value);max=Math.max(max,value);sum+=value*value;}return {peakToPeak:(max-min)*1000,rms:Math.sqrt(sum/values.length)*1000};}
 let cache = new Map();
@@ -57,16 +57,7 @@ async function latest(deviceId) {
   // services/ is nested under health-backend/health-backend. In production the
   // receiver is a Desktop sibling; the source bundle has one additional nested
   // raw-receiver directory. Prefer an explicit RAW_DATA_DIR, then support both.
-  const directories=process.env.RAW_DATA_DIR
-    ? [path.resolve(process.env.RAW_DATA_DIR)]
-    : [
-        path.resolve(__dirname,'../../../raw-receiver/received'),
-        path.resolve(__dirname,'../../../raw-receiver/raw-receiver/received')
-      ];
-  let directory=null;
-  for(const candidate of directories) {
-    try {await fs.access(candidate);directory=candidate;break;} catch {}
-  }
+  const directory=await require('./rawFiles').directory();
   if(!directory) return null;
   let names; try {names=await fs.readdir(directory);} catch(err){if(err.code==='ENOENT')return null;throw err;}
   const candidates=[];

@@ -9,13 +9,9 @@ const store = new Map(); // 存储验证码: key = sms:手机号, value = 验证
  */
 const setCode = async (phone, code, ttl = 300) => {
   const key = `sms:${phone}`;
-  store.set(key, code);
-  // 设置定时器自动删除
-  setTimeout(() => {
-    store.delete(key);
-    console.log(`验证码 ${key} 已过期删除`);
-  }, ttl * 1000);
-  console.log(`验证码已存储: ${key} = ${code}, 有效期 ${ttl} 秒`);
+  const now=Date.now();
+  for(const [id,row] of store) if(row.expires<=now) store.delete(id);
+  store.set(key, {code,expires:now+ttl*1000});
 };
 
 /**
@@ -25,9 +21,9 @@ const setCode = async (phone, code, ttl = 300) => {
  */
 const getCode = async (phone) => {
   const key = `sms:${phone}`;
-  const code = store.get(key) || null;
-  console.log(`获取验证码 ${key}: ${code}`);
-  return code;
+  const row = store.get(key);
+  if(!row || row.expires<=Date.now()){store.delete(key);return null;}
+  return row.code;
 };
 
 /**

@@ -20,7 +20,8 @@ npm start
 ## 接口状态
 
 - 已接通：`POST /api/upload/health-data`、`/api/data/*`、`/api/user/*`。
-- 尚未接通：袖带血压真值采集 `/api/training`，因此目前不能保存真值与原始波形的对应关系。
+- 2026-10-15 已接通：波形 `/api/data/waveform`、袖带真值 `/api/training`（原始帧旁独立标注文件）、头像 `/api/user/avatar`、密码重置 `/api/user/reset-password`。没有新增表或改动现有预测数据；短信发送仍为控制台模拟。
+- 新接口手工配置与验收：[页面配套接口](docs/APP_PAGE_INTEGRATION.md)。
 - 已知限制：服务器算法失败时可能上传兜底血压；当前表结构无法区分兜底值。服务器上传的 `spo2=98` 仍是占位值，不是血氧算法结果。
 
 ## 端口关系
